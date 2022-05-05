@@ -88,9 +88,10 @@ const getRegisteredUserCount = async () => {
 main();
 =======
 const fs = require("node:fs");
+const process = require("node:process");
 const logger = require("js-logger");
 
-const { Client, Collection, MessageEmbed, Intents } = require("discord.js");
+const { Client, Collection, Intents } = require("discord.js");
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
 const { NoPermissionEmbed } = require("./embeds/noPermission");
@@ -111,6 +112,19 @@ const client = new Client({
 });
 
 function main() {
+
+    process.on("exit", () => {
+        client.emit("shutdown");
+
+        logger.info("Graceful shutdown completed. Exiting...");
+        console.log("Process terminated");
+    });
+
+    process.on("SIGINT", () => {
+        console.log("Caught interrupt signal");
+        process.exit();
+    });
+
     logger.useDefaults({
         defaultLevel: logger.DEBUG,
         formatter: (messages, context) =>
