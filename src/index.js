@@ -5,7 +5,7 @@ import { getAuth } from "firebase-admin/auth";
 import "dotenv/config";
 
 const FIREBASE_CONFIG = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-const DISCORD_TOKEN = process.env.DISCORD_BOT_DISCORD_TOKEN;
+const DISCORD_TOKEN = process.env.DISCORD_BOT_TOKEN;
 const SERVER_ID = process.env.DISCORD_SERVER_ID;
 const CHANNEL_ID = process.env.DISCORD_CHANNEL_ID;
 const VP_CHANNEL_ID = process.env.DISCORD_VP_CHANNEL_ID;
