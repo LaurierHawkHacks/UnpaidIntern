@@ -3,11 +3,10 @@ import { initializeApp as initFirebaseAdmin } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { getAuth } from "firebase-admin/auth";
 import { cert } from "firebase-admin/app";
+import "dotenv/config";
 
-import { gcpServiceAccountConfig } from "./config.js";
-import 'dotenv/config';
-
-const TOKEN = process.env.DISCORD_BOT_TOKEN;
+const FIREBASE_CONFIG = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+const DISCORD_TOKEN = process.env.DISCORD_BOT_DISCORD_TOKEN;
 const SERVER_ID = process.env.DISCORD_SERVER_ID;
 const CHANNEL_ID = process.env.DISCORD_CHANNEL_ID;
 const VP_CHANNEL_ID = process.env.DISCORD_VP_CHANNEL_ID;
@@ -28,12 +27,12 @@ const main = async () => {
         process.exit(1);
     });
 
-    client.login(TOKEN);
+    client.login(DISCORD_TOKEN);
 };
 
 const init = () => {
     const client = new Client({ intents: [GatewayIntentBits.Guilds] });
-    const firebase = initFirebaseAdmin({ credential: cert(gcpServiceAccountConfig) });
+    const firebase = initFirebaseAdmin({ credential: cert(FIREBASE_CONFIG) });
     const firestore = getFirestore(firebase);
     const auth = getAuth(firebase);
 
