@@ -1,8 +1,7 @@
 import { Client, Events, EmbedBuilder, GatewayIntentBits } from "discord.js";
-import { initializeApp as initFirebaseAdmin } from "firebase-admin/app";
+import { initializeApp, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { getAuth } from "firebase-admin/auth";
-import { cert } from "firebase-admin/app";
 import "dotenv/config";
 
 const FIREBASE_CONFIG = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
@@ -10,7 +9,7 @@ const DISCORD_TOKEN = process.env.DISCORD_BOT_DISCORD_TOKEN;
 const SERVER_ID = process.env.DISCORD_SERVER_ID;
 const CHANNEL_ID = process.env.DISCORD_CHANNEL_ID;
 const VP_CHANNEL_ID = process.env.DISCORD_VP_CHANNEL_ID;
-const UPDATE_INTERVAL = 60000;
+const UPDATE_INTERVAL = 10 * 60 * 1000; // 10 minutes * 60 seconds * 1000 milliseconds
 let lastUpdateAutomatic = true;
 
 const main = async () => {
@@ -32,7 +31,7 @@ const main = async () => {
 
 const init = () => {
     const client = new Client({ intents: [GatewayIntentBits.Guilds] });
-    const firebase = initFirebaseAdmin({ credential: cert(FIREBASE_CONFIG) });
+    const firebase = initializeApp({ credential: cert(FIREBASE_CONFIG) });
     const firestore = getFirestore(firebase);
     const auth = getAuth(firebase);
 
