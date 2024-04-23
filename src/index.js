@@ -1,5 +1,8 @@
 import { Client, Events, EmbedBuilder, GatewayIntentBits } from "discord.js";
-import { initializeApp, cert } from "firebase-admin/app";
+// import { initializeApp as initFirebase } from "firebase/app";
+// import { getAnalytics } from "firebase/analytics";
+
+import { initializeApp as initFirebaseAdmin, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { getAuth } from "firebase-admin/auth";
 import "dotenv/config";
@@ -31,11 +34,14 @@ const main = async () => {
 
 const init = () => {
     const client = new Client({ intents: [GatewayIntentBits.Guilds] });
-    const firebase = initializeApp({ credential: cert(FIREBASE_CONFIG) });
-    const firestore = getFirestore(firebase);
-    const auth = getAuth(firebase);
+    const firebaseAdmin = initFirebaseAdmin({ credential: cert(FIREBASE_CONFIG) });
+    const firebase = null; //initFirebase(FIREBASE_CONFIG);
 
-    return [client, firebase, firestore, auth];
+    const firestore = getFirestore(firebaseAdmin);
+    const auth = getAuth(firebaseAdmin);
+    const analytics = null; //getAnalytics(firebase);
+
+    return [client, firebaseAdmin, firestore, analytics, auth];
 }
 
 const updateMessage = async () => {
@@ -47,7 +53,7 @@ const updateMessage = async () => {
     else
         channel.messages.cache.first().edit({ embeds: [message] });
 
-    console.log(`🔄 Updated message at ${new Date().toLocaleString()}, apps=${apps}, users=${users}`);
+    console.log(`🔄 Updated message at ${new Date().toLocaleString()}`);
     setTimeout(updateMessage, UPDATE_INTERVAL);
 }
 
