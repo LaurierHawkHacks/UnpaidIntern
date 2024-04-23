@@ -82,11 +82,9 @@ const createMessage = async () => {
 
                 { name: " ", value: " ", inline: false },
 
-                { name: "☀️ Application Data", value: `
-                Hackers: ${appsTypeCount.Hacker}
-                Mentors: ${appsTypeCount.Mentor}
-                Volunteers: ${appsTypeCount.Volunteer}
-                `, inline: false },
+                { name: "☀️ Application Data", value:
+                appsTypeCount.map(([type, count]) => `${type}: ${count}`).join("\n"),
+                inline: false },
 
                 { name: " ", value: " ", inline: false },
 
@@ -133,75 +131,44 @@ const getApplicationCount = (snapshot) => {
     return snapshot.size;
 };
 
-const getApplicationTypeCount = (snapshot) => {
-    const types = {};
+const getSpecificDataFromApplications = (snapshot, key) => {
+    const result = {};
     snapshot.forEach(doc => {
         const data = doc.data();
-        const type = data.participatingAs;
-        if (type in types)
-            types[type] += 1;
+        const entry = data[key];
+        if (entry in result)
+            result[entry] += 1;
         else
-            types[type] = 1;
+            result[entry] = 1;
     });
 
-    return types;
+    const sorted = Object.entries(result).sort((a, b) => b[1] - a[1]);
+    return sorted;
+}
+
+const getApplicationTypeCount = (snapshot) => {
+    return getSpecificDataFromApplications(snapshot, "participatingAs");
 }
 
 const getTopCountriesFromApplications = (snapshot) => {
-    const countries = {};
-    snapshot.forEach(doc => {
-        const data = doc.data();
-        const country = data.countryOfResidence;
-        if (country in countries)
-            countries[country] += 1;
-        else
-            countries[country] = 1;
-    });
-
-    const sorted = Object.entries(countries).sort((a, b) => b[1] - a[1]);
-    return sorted.slice(0, 5);
+    const countries = getSpecificDataFromApplications(snapshot, "countryOfResidence");
+    return countries.slice(0, 5);
 }
 
 const getTopCitiesFromApplications = (snapshot) => {
-    const cities = {};
-    snapshot.forEach(doc => {
-        const data = doc.data();
-        const city = data.city;
-        if (city in cities)
-            cities[city] += 1;
-        else
-            cities[city] = 1;
-    });
-
-    const sorted = Object.entries(cities).sort((a, b) => b[1] - a[1]);
-    return sorted.slice(0, 5);
+    const cities = getSpecificDataFromApplications(snapshot, "city");
+    return cities.slice(0, 5);
 }
 
 const getTopSchoolsFromApplications = (snapshot) => {
-    const schools = {};
-    snapshot.forEach(doc => {
-        const data = doc.data();
-        const school = data.school;
-        if (school in schools)
-            schools[school] += 1;
-        else
-            schools[school] = 1;
-    });
-
-    const sorted = Object.entries(schools).sort((a, b) => b[1] - a[1]);
-    return sorted.slice(0, 5);
+    const schools = getSpecificDataFromApplications(snapshot, "school");
+    return schools.slice(0, 5);
 }
 
 const getTopMajorsFromApplications = (snapshot) => {
-    const majors = {};
-    snapshot.forEach(doc => {
-        const data = doc.data();
-        const major = data.major;
-        if (major in majors)
-            majors[major] += 1;
-        else
-            majors[major] = 1;
-    });
+    const majors = getSpecificDataFromApplications(snapshot, "major");
+    return majors.slice(0, 5);
+}
 
     const sorted = Object.entries(majors).sort((a, b) => b[1] - a[1]);
     return sorted.slice(0, 5);
