@@ -68,6 +68,7 @@ const createMessage = async () => {
     const appsTopCities = getTopCitiesFromApplications(snapshot);
     const appsTopSchools = getTopSchoolsFromApplications(snapshot);
     const appsTopMajors = getTopMajorsFromApplications(snapshot);
+    const appsLevelsOfStudy = getLevelsOfStudyFromApplications(snapshot);
 
     return [
         new EmbedBuilder()
@@ -108,6 +109,12 @@ const createMessage = async () => {
 
                 { name: "📚 Top Majors", value:
                 appsTopMajors.map(([major, count]) => `${major}: ${count}`).join("\n"),
+                inline: false },
+
+                { name: " ", value: " ", inline: false },
+
+                { name: "🎓 Levels of Study", value:
+                appsLevelsOfStudy.map(([level, count]) => `${level}: ${count}`).join("\n"),
                 inline: false }
                 )
             .setFooter({ text: `Last Updated: ${new Date().toLocaleString()} ${lastUpdateAutomatic ? "(auto)" : "(manual)"}` }),
@@ -170,8 +177,8 @@ const getTopMajorsFromApplications = (snapshot) => {
     return majors.slice(0, 5);
 }
 
-    const sorted = Object.entries(majors).sort((a, b) => b[1] - a[1]);
-    return sorted.slice(0, 5);
+const getLevelsOfStudyFromApplications = (snapshot) => {
+    return getSpecificDataFromApplications(snapshot, "levelOfStudy");
 }
 
 const [client, firebase, firestore, analytics, auth] = init();
