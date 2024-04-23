@@ -52,25 +52,64 @@ const updateMessage = async () => {
 }
 
 const createMessage = async () => {
-    const applicationCount = await getApplicationCount();
+    const websiteViews = NaN;
     const userCount = await getRegisteredUserCount();
+    const snapshot = await getApplicationSnapshot();
+
+    const applicationCount = getApplicationCount(snapshot);
+    const appsTypeCount = getApplicationTypeCount(snapshot);
+    const appsTopCountries = getTopCountriesFromApplications(snapshot);
+    const appsTopCities = getTopCitiesFromApplications(snapshot);
+    const appsTopSchools = getTopSchoolsFromApplications(snapshot);
+    const appsTopMajors = getTopMajorsFromApplications(snapshot);
+
     return [
         new EmbedBuilder()
             .setTitle("📊 **Statistics**")
             .setDescription(`Updates automatically once every ${UPDATE_INTERVAL / 1000} seconds.`)
             .addFields(
-                { name: "👥 Registered Users", value: `${userCount}`, inline: true },
-                { name: "📝 Applications", value: `${applicationCount}`, inline: true } )
+                { name: "👥 Website Data", value: `
+                Registered Users: ${userCount}
+                Applications: ${applicationCount}
+                Website Views: ${websiteViews}
+                `, inline: false },
+
+                { name: " ", value: " ", inline: false },
+
+                { name: "☀️ Application Data", value: `
+                Hackers: ${appsTypeCount.Hacker}
+                Mentors: ${appsTypeCount.Mentor}
+                Volunteers: ${appsTypeCount.Volunteer}
+                `, inline: false },
+
+                { name: " ", value: " ", inline: false },
+
+                { name: "🌎 Top Countries", value:
+                appsTopCountries.map(([country, count]) => `${country}: ${count}`).join("\n"),
+                inline: false },
+
+                { name: " ", value: " ", inline: false },
+
+                { name: "🏙️ Top Cities", value:
+                appsTopCities.map(([city, count]) => `${city}: ${count}`).join("\n"),
+                inline: false },
+
+                { name: " ", value: " ", inline: false },
+
+                { name: "📈 Top Schools", value:
+                appsTopSchools.map(([school, count]) => `${school}: ${count}`).join("\n"),
+                inline: false },
+
+                { name: " ", value: " ", inline: false },
+
+                { name: "📚 Top Majors", value:
+                appsTopMajors.map(([major, count]) => `${major}: ${count}`).join("\n"),
+                inline: false }
+                )
             .setFooter({ text: `Last Updated: ${new Date().toLocaleString()} ${lastUpdateAutomatic ? "(auto)" : "(manual)"}` }),
         applicationCount,
         userCount
     ];
-};
-
-const getApplicationCount = async () => {
-    const collectionRef = firestore.collection("applications");
-    const snapshot = await collectionRef.get();
-    return snapshot.size;
 };
 
 const getRegisteredUserCount = async () => {
@@ -161,4 +200,6 @@ const getTopMajorsFromApplications = (snapshot) => {
     const sorted = Object.entries(majors).sort((a, b) => b[1] - a[1]);
     return sorted.slice(0, 5);
 }
+
+const [client, firebase, firestore, analytics, auth] = init();
 main();
