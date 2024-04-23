@@ -78,5 +78,87 @@ const getRegisteredUserCount = async () => {
     return users.users.length;
 }
 
-const [client, firebase, firestore, auth] = init();
+const getApplicationSnapshot = async () => {
+    const collectionRef = firestore.collection("applications");
+    const snapshot = await collectionRef.get();
+    return snapshot;
+}
+
+const getApplicationCount = (snapshot) => {
+    return snapshot.size;
+};
+
+const getApplicationTypeCount = (snapshot) => {
+    const types = {};
+    snapshot.forEach(doc => {
+        const data = doc.data();
+        const type = data.participatingAs;
+        if (type in types)
+            types[type] += 1;
+        else
+            types[type] = 1;
+    });
+
+    return types;
+}
+
+const getTopCountriesFromApplications = (snapshot) => {
+    const countries = {};
+    snapshot.forEach(doc => {
+        const data = doc.data();
+        const country = data.countryOfResidence;
+        if (country in countries)
+            countries[country] += 1;
+        else
+            countries[country] = 1;
+    });
+
+    const sorted = Object.entries(countries).sort((a, b) => b[1] - a[1]);
+    return sorted.slice(0, 5);
+}
+
+const getTopCitiesFromApplications = (snapshot) => {
+    const cities = {};
+    snapshot.forEach(doc => {
+        const data = doc.data();
+        const city = data.city;
+        if (city in cities)
+            cities[city] += 1;
+        else
+            cities[city] = 1;
+    });
+
+    const sorted = Object.entries(cities).sort((a, b) => b[1] - a[1]);
+    return sorted.slice(0, 5);
+}
+
+const getTopSchoolsFromApplications = (snapshot) => {
+    const schools = {};
+    snapshot.forEach(doc => {
+        const data = doc.data();
+        const school = data.school;
+        if (school in schools)
+            schools[school] += 1;
+        else
+            schools[school] = 1;
+    });
+
+    const sorted = Object.entries(schools).sort((a, b) => b[1] - a[1]);
+    return sorted.slice(0, 5);
+}
+
+const getTopMajorsFromApplications = (snapshot) => {
+    const majors = {};
+    snapshot.forEach(doc => {
+        const data = doc.data();
+        const major = data.major;
+        if (major in majors)
+            majors[major] += 1;
+        else
+            majors[major] = 1;
+    });
+
+    const sorted = Object.entries(majors).sort((a, b) => b[1] - a[1]);
+    return sorted.slice(0, 5);
+}
 main();
