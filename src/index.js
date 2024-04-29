@@ -123,9 +123,9 @@ const createMessage = async () => {
     ];
 };
 
-const getRegisteredUserCount = async () => {
-    const users = await auth.listUsers(1000);
-    return users.users.length;
+const getRegisteredUserCount = async (nextPageToken) => {
+    const users = await auth.listUsers(1000, nextPageToken);
+    return users.users.length + (users.pageToken ? await getRegisteredUserCount(users.pageToken) : 0);
 }
 
 const getApplicationSnapshot = async () => {
