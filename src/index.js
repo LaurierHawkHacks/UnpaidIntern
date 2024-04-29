@@ -10,6 +10,7 @@ import "dotenv/config";
 const FIREBASE_CONFIG = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 const DISCORD_TOKEN = process.env.DISCORD_BOT_TOKEN;
 const SERVER_ID = process.env.DISCORD_SERVER_ID;
+const PUBLIC_SERVER_ID = process.env.DISCORD_PUBLIC_SERVER_ID;
 const CHANNEL_ID = process.env.DISCORD_CHANNEL_ID;
 const VP_CHANNEL_ID = process.env.DISCORD_VP_CHANNEL_ID;
 const UPDATE_INTERVAL = 10 * 60 * 1000; // 10 minutes * 60 seconds * 1000 milliseconds
@@ -58,7 +59,7 @@ const updateMessage = async () => {
 }
 
 const createMessage = async () => {
-    const websiteViews = NaN;
+    const discordMemberCount = await getDiscordMemberCount();
     const userCount = await getRegisteredUserCount();
     const snapshot = await getApplicationSnapshot();
 
@@ -76,9 +77,9 @@ const createMessage = async () => {
             .setDescription(`Updates automatically once every ${UPDATE_INTERVAL / 1000} seconds.`)
             .addFields(
                 { name: "👥 Website Data", value: `
+                Discord Members: ${discordMemberCount}
                 Registered Users: ${userCount}
                 Applications: ${applicationCount}
-                Website Views: ${websiteViews}
                 `, inline: false },
 
                 { name: " ", value: " ", inline: false },
@@ -122,6 +123,11 @@ const createMessage = async () => {
         userCount
     ];
 };
+
+const getDiscordMemberCount = async () => {
+    const guild = await client.guilds.fetch(PUBLIC_SERVER_ID);
+    return guild.memberCount;
+}
 
 const getRegisteredUserCount = async (nextPageToken) => {
     const users = await auth.listUsers(1000, nextPageToken);
