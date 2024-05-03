@@ -1,7 +1,5 @@
 import { Client, Events, AttachmentBuilder, EmbedBuilder, GatewayIntentBits } from "discord.js";
 // import { initializeApp as initFirebase } from "firebase/app";
-// import { getAnalytics } from "firebase/analytics";
-
 import { initializeApp as initFirebaseAdmin, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { getAuth } from "firebase-admin/auth";
@@ -48,13 +46,10 @@ const main = async () => {
 const init = () => {
     const client = new Client({ intents: [GatewayIntentBits.Guilds] });
     const firebaseAdmin = initFirebaseAdmin({ credential: cert(FIREBASE_CONFIG) });
-    const firebase = null; //initFirebase(FIREBASE_CONFIG);
-
     const firestore = getFirestore(firebaseAdmin);
     const auth = getAuth(firebaseAdmin);
-    const analytics = null; //getAnalytics(firebase);
 
-    return [client, firebaseAdmin, firestore, analytics, auth];
+    return [client, firebaseAdmin, firestore, auth];
 }
 
 const updateMessage = async () => {
@@ -227,5 +222,5 @@ const createFileForDiscord = async () => {
 }
 
 
-const [client, firebase, firestore, analytics, auth] = init();
+const [client, firebase, firestore, auth] = init();
 main();
