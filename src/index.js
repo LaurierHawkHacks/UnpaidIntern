@@ -1,10 +1,11 @@
-import { Client, Events, EmbedBuilder, GatewayIntentBits } from "discord.js";
+import { Client, Events, AttachmentBuilder, EmbedBuilder, GatewayIntentBits } from "discord.js";
 // import { initializeApp as initFirebase } from "firebase/app";
 // import { getAnalytics } from "firebase/analytics";
 
 import { initializeApp as initFirebaseAdmin, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { getAuth } from "firebase-admin/auth";
+import fs from "node:fs";
 import "dotenv/config";
 
 const FIREBASE_CONFIG = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
@@ -28,6 +29,17 @@ const main = async () => {
         console.log("❌ Client.onError: An error occurred!");
         console.error(err);
         process.exit(1);
+    });
+
+    client.on(Events.InteractionCreate, async (interaction) => {
+	    if (!interaction.isChatInputCommand()) return;
+        await interaction.reply("🔄 shut up");
+        return;
+
+        const count = await createFileForDiscord();
+        const channel = interaction.channel;
+        const file = new AttachmentBuilder().setFile("./emails.txt");
+        await channel.send(`Here are ${count} emails of people who haven't applied`, { files: [file] });
     });
 
     client.login(DISCORD_TOKEN);
@@ -186,6 +198,34 @@ const getTopMajorsFromApplications = (snapshot) => {
 const getLevelsOfStudyFromApplications = (snapshot) => {
     return getSpecificDataFromApplications(snapshot, "levelOfStudy");
 }
+
+const getRegisteredUsers = async (nextPageToken) => {
+    const users = await auth.listUsers(1000, nextPageToken);
+    return users.users.concat((users.pageToken ? await getRegisteredUsers(users.pageToken) : 0));
+}
+
+const getAppliedUsers = async (snapshot) => {
+    const users = [];
+    snapshot.forEach(doc => users.push(doc.data()) );
+    return users;
+}
+
+const getEmailDiff = (registeredData, appliedData) => {
+    const filtered = registeredData.filter(user => !appliedData.some(applicant => applicant.applicantId === user.uid));
+    return filtered.map(user => user.email);
+}
+
+const createFileForDiscord = async () => {
+    const registeredUsers = await getRegisteredUsers();
+    const snapshot = await getApplicationSnapshot();
+    const appliedUsers = await getAppliedUsers(snapshot);
+
+    const emails = getEmailDiff(registeredUsers, appliedUsers);
+    const data = emails.join("\n");
+    fs.writeFileSync("./emails.txt", data);
+    return emails.length;
+}
+
 
 const [client, firebase, firestore, analytics, auth] = init();
 main();
